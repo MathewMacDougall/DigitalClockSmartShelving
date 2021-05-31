@@ -1,46 +1,104 @@
-void digitZero(int offset, uint32_t colour){
-    stripClock.fill(colour, (0 + offset), 27);
-    stripClock.fill(colour, (36 + offset), 27);
+/*
+ * The digits for the "ones" column of the hour and minute numbers are wired
+ * differently than the "tens" column, so they have separate functions.
+ * The "ones" start going down, while the "tens" start going up.
+ */
+
+void ones_digitZero(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 3 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (4 * LEDS_PER_SEGMENT + offset), 3 * LEDS_PER_SEGMENT);
 }
 
-void digitOne(int offset, uint32_t colour){
-    stripClock.fill(colour, (0 + offset), 9);
-    stripClock.fill(colour, (36 + offset), 9);
+void ones_digitOne(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 1 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (4 * LEDS_PER_SEGMENT + offset), 1 * LEDS_PER_SEGMENT);
 }
 
-void digitTwo(int offset, uint32_t colour){
-    stripClock.fill(colour, (0 + offset), 18);
-    stripClock.fill(colour, (27 + offset), 9);
-    stripClock.fill(colour, (45 + offset), 18);
+void ones_digitTwo(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (1 * LEDS_PER_SEGMENT + offset), 5 * LEDS_PER_SEGMENT);
 }
 
-void digitThree(int offset, uint32_t colour){
-    stripClock.fill(colour, (0 + offset), 18);
-    stripClock.fill(colour, (27 + offset), 27);
+void ones_digitThree(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 2 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (3 * LEDS_PER_SEGMENT + offset), 3 * LEDS_PER_SEGMENT);
 }
 
-void digitFour(int offset, uint32_t colour){
-    stripClock.fill(colour, (0 + offset), 9);
-    stripClock.fill(colour, (18 + offset), 27);
+void ones_digitFour(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 1 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (3 * LEDS_PER_SEGMENT + offset), 2 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (6 * LEDS_PER_SEGMENT + offset), 1 * LEDS_PER_SEGMENT);
 }
 
-void digitFive(int offset, uint32_t colour){
-    stripClock.fill(colour, (9 + offset), 45);
+void ones_digitFive(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 2 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (3 * LEDS_PER_SEGMENT + offset), 1 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (5 * LEDS_PER_SEGMENT + offset), 2 * LEDS_PER_SEGMENT);
 }
 
-void digitSix(int offset, uint32_t colour){
-    stripClock.fill(colour, (9 + offset), 54);
+void ones_digitSix(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 4 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (5 * LEDS_PER_SEGMENT + offset), 2 * LEDS_PER_SEGMENT);
 }
 
-void digitSeven(int offset, uint32_t colour){
-    stripClock.fill(colour, (0 + offset), 18);
-    stripClock.fill(colour, (36 + offset), 9);
+void ones_digitSeven(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 1 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (4 * LEDS_PER_SEGMENT + offset), 2 * LEDS_PER_SEGMENT);
 }
 
-void digitEight(int offset, uint32_t colour){
-    stripClock.fill(colour, (0 + offset), 63);
+void ones_digitEight(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 7 * LEDS_PER_SEGMENT);
 }
 
-void digitNine(int offset, uint32_t colour){
-    stripClock.fill(colour, (0 + offset), 45);
+void ones_digitNine(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 1 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (3 * LEDS_PER_SEGMENT + offset), 4 * LEDS_PER_SEGMENT);
+}
+
+//=============================================================================//
+
+void tens_digitZero(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 3 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (4 * LEDS_PER_SEGMENT + offset), 3 * LEDS_PER_SEGMENT);
+}
+
+void tens_digitOne(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 1 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (4 * LEDS_PER_SEGMENT + offset), 1 * LEDS_PER_SEGMENT);
+}
+
+void tens_digitTwo(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 2 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (3 * LEDS_PER_SEGMENT + offset), 1 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (5 * LEDS_PER_SEGMENT + offset), 2 * LEDS_PER_SEGMENT);
+}
+
+void tens_digitThree(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 2 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (3 * LEDS_PER_SEGMENT + offset), 3 * LEDS_PER_SEGMENT);
+}
+
+void tens_digitFour(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 1 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (2 * LEDS_PER_SEGMENT + offset), 3 * LEDS_PER_SEGMENT);
+}
+
+void tens_digitFive(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (1 * LEDS_PER_SEGMENT + offset), 5 * LEDS_PER_SEGMENT);
+}
+
+void tens_digitSix(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (1 * LEDS_PER_SEGMENT + offset), 6 * LEDS_PER_SEGMENT);
+}
+
+void tens_digitSeven(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 2 * LEDS_PER_SEGMENT);
+  leds.fill(colour, (4 * LEDS_PER_SEGMENT + offset), 1 * LEDS_PER_SEGMENT);
+}
+
+void tens_digitEight(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 7 * LEDS_PER_SEGMENT);
+}
+
+void tens_digitNine(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
+  leds.fill(colour, (0 + offset), 5 * LEDS_PER_SEGMENT);
 }
