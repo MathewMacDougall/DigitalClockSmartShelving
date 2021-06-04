@@ -23,7 +23,7 @@ uint32_t green() {
 uint32_t blue(int light_sensor_value) {
   return stripDownlighter.Color(
     0,
-    constrain(map(light_sensor_value, DARK_COLOR_BRIGHTNESS_THRESHOLD, LIGHT_COLOR_BRIGHTNESS_THRESHOLD, 150, 80), 80, 150),
+    constrain(map(light_sensor_value, DARK_COLOR_BRIGHTNESS_THRESHOLD, LIGHT_COLOR_BRIGHTNESS_THRESHOLD, 123, 80), 80, 123),
     255
   );
 }
@@ -31,7 +31,7 @@ uint32_t blue(int light_sensor_value) {
 uint32_t orange(int light_sensor_value) {
   return stripDownlighter.Color(
     255,
-    constrain(map(light_sensor_value, DARK_COLOR_BRIGHTNESS_THRESHOLD, LIGHT_COLOR_BRIGHTNESS_THRESHOLD, 150, 80), 80, 150),
+    constrain(map(light_sensor_value, DARK_COLOR_BRIGHTNESS_THRESHOLD, LIGHT_COLOR_BRIGHTNESS_THRESHOLD, 123, 80), 80, 123),
     0
   );
 }
@@ -87,6 +87,9 @@ void getRandomColorPair(int light_sensor_value, uint32_t& hour_color, uint32_t& 
 }
 
 void getDateAwareRandomColorPair(int month, int day, int light_sensor_value, uint32_t& hour_color, uint32_t& minute_color) {
+  hour_color = blue(light_sensor_value);
+  minute_color = orange(light_sensor_value);
+  return;
   if(month == 12 && (random(0, 3) == 0 || day == 25)) {
     // Red and green 33% of the time in December, and on Christmas
     hour_color = green();

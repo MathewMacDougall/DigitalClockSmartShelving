@@ -55,20 +55,22 @@ DateTime datetime;
 #define MINUTES_TENS_DIGIT_OFFSET 7 * LEDS_PER_SEGMENT
 #define MINUTES_ONES_DIGIT_OFFSET 0
 
-#define DELAY_MS 3000
+#define DELAY_MS 500
 #define DELAY_S (DELAY_MS / 1000.0)
 
 // Mapped to 0 (dark) to 100 (bright)
 #define LIGHT_SENSOR_RAW_MIN_VALUE 70 // When it's bright
-#define LIGHT_SENSOR_RAW_MAX_VALUE 800 // When it's dark
+#define LIGHT_SENSOR_RAW_MAX_VALUE 1000 // When it's dark
 
 // Recording values to help tune
-// * sunny at 5:20 pm   light sensor=389,  normalized value = 60
-#define CLOCK_FACE_MIN_BRIGHTNESS 150
+// raw value at night with lights on: ~800 (normalized ~20)
+// aw value at night with lights off (darkest possible): ~1000 (seems to be affected by the LEDs themselves)(normalized 0)
+// 
+#define CLOCK_FACE_MIN_BRIGHTNESS 100
 #define CLOCK_FACE_MAX_BRIGHTNESS 255
-#define CLOCK_FACE_MIN_BRIGHTNESS_THRESHOLD 10
-#define CLOCK_FACE_MAX_BRIGHTNESS_THRESHOLD 25
-#define CLOCK_FACE_OFF_BRIGHTNESS_THRESHOLD 5
+#define CLOCK_FACE_MIN_BRIGHTNESS_THRESHOLD 25
+#define CLOCK_FACE_MAX_BRIGHTNESS_THRESHOLD 50
+#define CLOCK_FACE_OFF_BRIGHTNESS_THRESHOLD 10
 
 #define DARK_COLOR_BRIGHTNESS_THRESHOLD 20
 #define LIGHT_COLOR_BRIGHTNESS_THRESHOLD 50
@@ -118,8 +120,8 @@ void setup() {
 void loop() { 
   updateAndPrintCurrentTime();
   int lightSensorValue = getLightSensorValue();
-  lightSensorValue = 100;
-  int clockFaceBrightness = constrain(map(lightSensorValue, 0, 100, CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS), 0, 255);
+//  lightSensorValue = 100;
+  int clockFaceBrightness = constrain(map(lightSensorValue, CLOCK_FACE_MIN_BRIGHTNESS_THRESHOLD, CLOCK_FACE_MAX_BRIGHTNESS_THRESHOLD, CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS), CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS);
   Serial.print("Mapped brightness value = ");
   Serial.println(clockFaceBrightness);
   uint32_t hour_color;
@@ -128,13 +130,17 @@ void loop() {
 
   minutesClock.clear();
   hoursClock.clear();
-  displayCurrentTime(hour_color, minute_color);
+  if (lightSensorValue >= CLOCK_FACE_OFF_BRIGHTNESS_THRESHOLD) {
+ displayCurrentTime(hour_color, minute_color);
   minutesClock.setBrightness(clockFaceBrightness);
   hoursClock.setBrightness(clockFaceBrightness);
-  minutesClock.show();
-  hoursClock.show();
-
   stripDownlighter.fill(stripDownlighter.Color(255, 255, 255), 0, LED_DOWNLIGHT_COUNT);
+  }else {
+    stripDownlighter.clear();
+  }
+
+ minutesClock.show();
+  hoursClock.show();
   stripDownlighter.show();
   
   delay(DELAY_MS);
