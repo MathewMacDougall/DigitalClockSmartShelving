@@ -23,7 +23,7 @@ uint32_t green() {
 uint32_t blue(int light_sensor_value) {
   return stripDownlighter.Color(
     0,
-    constrain(map(light_sensor_value, LIGHT_SENSOR_DARK_COLOR_THRESHOLD, LIGHT_SENSOR_LIGHT_COLOR_THRESHOLD, 150, 80), 80, 150),
+    constrain(map(light_sensor_value, DARK_COLOR_BRIGHTNESS_THRESHOLD, LIGHT_COLOR_BRIGHTNESS_THRESHOLD, 150, 80), 80, 150),
     255
   );
 }
@@ -31,7 +31,7 @@ uint32_t blue(int light_sensor_value) {
 uint32_t orange(int light_sensor_value) {
   return stripDownlighter.Color(
     255,
-    constrain(map(light_sensor_value, LIGHT_SENSOR_DARK_COLOR_THRESHOLD, LIGHT_SENSOR_LIGHT_COLOR_THRESHOLD, 150, 80), 80, 150),
+    constrain(map(light_sensor_value, DARK_COLOR_BRIGHTNESS_THRESHOLD, LIGHT_COLOR_BRIGHTNESS_THRESHOLD, 150, 80), 80, 150),
     0
   );
 }

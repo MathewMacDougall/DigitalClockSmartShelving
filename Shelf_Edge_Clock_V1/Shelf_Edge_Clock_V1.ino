@@ -55,23 +55,23 @@ DateTime datetime;
 #define MINUTES_TENS_DIGIT_OFFSET 7 * LEDS_PER_SEGMENT
 #define MINUTES_ONES_DIGIT_OFFSET 0
 
-#define DELAY_MS 1000
+#define DELAY_MS 3000
 #define DELAY_S (DELAY_MS / 1000.0)
+
+// Mapped to 0 (dark) to 100 (bright)
+#define LIGHT_SENSOR_RAW_MIN_VALUE 70 // When it's bright
+#define LIGHT_SENSOR_RAW_MAX_VALUE 800 // When it's dark
 
 // Recording values to help tune
 // * sunny at 5:20 pm   light sensor=389,  normalized value = 60
-#define CLOCK_FACE_MIN_BRIGHTNESS 255
+#define CLOCK_FACE_MIN_BRIGHTNESS 150
 #define CLOCK_FACE_MAX_BRIGHTNESS 255
-#define LIGHT_SENSOR_MIN_VALUE 70 // When it's bright
-#define LIGHT_SENSOR_MAX_VALUE 800 // When it's dark
-#define LIGHT_SENSOR_DARK_COLOR_THRESHOLD 50
-#define LIGHT_SENSOR_LIGHT_COLOR_THRESHOLD 80
+#define CLOCK_FACE_MIN_BRIGHTNESS_THRESHOLD 10
+#define CLOCK_FACE_MAX_BRIGHTNESS_THRESHOLD 25
+#define CLOCK_FACE_OFF_BRIGHTNESS_THRESHOLD 5
 
-//(red * 65536) + (green * 256) + blue ->for 32-bit merged colour value so 16777215 equals white
-// or 3 hex byte 00 -> ff for RGB eg 0x123456 for red=12(hex) green=34(hex), and green=56(hex) 
-// this hex method is the same as html colour codes just with "0x" instead of "#" in front
-uint32_t clockMinuteColour = 0x800000; // pure red 
-uint32_t clockHourColour = 0x008000;   // pure green
+#define DARK_COLOR_BRIGHTNESS_THRESHOLD 20
+#define LIGHT_COLOR_BRIGHTNESS_THRESHOLD 50
 
 // Declare our NeoPixel objects:
 Adafruit_NeoPixel hoursClock(LED_HOURS_COUNT, LED_HOURS_PIN, NEO_GRB + NEO_KHZ800);
@@ -87,7 +87,7 @@ Adafruit_NeoPixel stripDownlighter(LED_DOWNLIGHT_COUNT, LED_DOWNLIGHT_PIN, NEO_G
 //   NEO_RGBW    Pixels are wired for RGBW bitstream (NeoPixel RGBW products)
 
 //Smoothing of the readings from the light sensor so it is not too twitchy
-#define PHOTORESISTOR_BUFFER_SIZE 2
+#define PHOTORESISTOR_BUFFER_SIZE 10
 
 int readings[PHOTORESISTOR_BUFFER_SIZE];      // the readings from the analog input
 int readIndex = 0;              // the index of the current reading
@@ -115,7 +115,6 @@ void setup() {
   } 
 }
 
-uint32_t xx = 0;
 void loop() { 
   updateAndPrintCurrentTime();
   int lightSensorValue = getLightSensorValue();
@@ -163,7 +162,7 @@ int getLightSensorValue() {
   Serial.print("Average light sensor value = ");
   Serial.println(lightSensorValue);
 
-  int normalized_value = constrain(map(lightSensorValue, LIGHT_SENSOR_MIN_VALUE, LIGHT_SENSOR_MAX_VALUE, 100, 0), 0, 100);
+  int normalized_value = constrain(map(lightSensorValue, LIGHT_SENSOR_RAW_MIN_VALUE, LIGHT_SENSOR_RAW_MAX_VALUE, 100, 0), 0, 100);
   Serial.print("Normalized light sensor value = ");
   Serial.println(normalized_value);
 
