@@ -23,7 +23,7 @@ uint32_t green() {
 uint32_t blue(int light_sensor_value) {
   return stripDownlighter.Color(
     0,
-    constrain(map(light_sensor_value, DARK_COLOR_BRIGHTNESS_THRESHOLD, LIGHT_COLOR_BRIGHTNESS_THRESHOLD, 123, 80), 80, 123),
+    constrain(map(light_sensor_value, DARK_COLOR_BRIGHTNESS_THRESHOLD, LIGHT_COLOR_BRIGHTNESS_THRESHOLD, 123, 60), 60, 123),
     255
   );
 }
@@ -31,7 +31,7 @@ uint32_t blue(int light_sensor_value) {
 uint32_t orange(int light_sensor_value) {
   return stripDownlighter.Color(
     255,
-    constrain(map(light_sensor_value, DARK_COLOR_BRIGHTNESS_THRESHOLD, LIGHT_COLOR_BRIGHTNESS_THRESHOLD, 123, 80), 80, 123),
+    constrain(map(light_sensor_value, DARK_COLOR_BRIGHTNESS_THRESHOLD, LIGHT_COLOR_BRIGHTNESS_THRESHOLD, 123, 50), 50, 123),
     0
   );
 }
@@ -108,13 +108,13 @@ void getDateAwareRandomColorPair(int month, int day, int light_sensor_value, uin
     minute_color = green();
     return;
   }
-  else if (month == 6 && day == 1) {
+  else if (month == 7 && day == 1) {
     // Red and White for Canada Day
     hour_color = white();
     minute_color = red();
     return;
   }
-  else if (month == 6 && day == 4) {
+  else if (month == 7 && day == 4) {
     // Red and Blue for July 4
     hour_color = stripDownlighter.Color(0, 0, 255);
     minute_color = red();

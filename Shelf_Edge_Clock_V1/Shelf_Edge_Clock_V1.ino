@@ -59,21 +59,24 @@ DateTime datetime;
 #define DELAY_S (DELAY_MS / 1000.0)
 
 // Mapped to 0 (dark) to 100 (bright)
-#define LIGHT_SENSOR_RAW_MIN_VALUE 70 // When it's bright
-#define LIGHT_SENSOR_RAW_MAX_VALUE 1000 // When it's dark
+#define LIGHT_SENSOR_RAW_MIN_VALUE 100 // When it's bright
+#define LIGHT_SENSOR_RAW_MAX_VALUE 1023 // When it's dark
 
 // Recording values to help tune
 // raw value at night with lights on: ~800 (normalized ~20)
 // aw value at night with lights off (darkest possible): ~1000 (seems to be affected by the LEDs themselves)(normalized 0)
-// 
+// TODO: you are here. something in the last commit causes the clock to turn off when the usb is unplugged
+// morning, raw value 605, normalized 43
+// morning, really sunny, raw value ~160, normalized 93
+// bright afternoon but no direct sun, raw value 343, normalized 73
 #define CLOCK_FACE_MIN_BRIGHTNESS 100
 #define CLOCK_FACE_MAX_BRIGHTNESS 255
 #define CLOCK_FACE_MIN_BRIGHTNESS_THRESHOLD 25
 #define CLOCK_FACE_MAX_BRIGHTNESS_THRESHOLD 50
-#define CLOCK_FACE_OFF_BRIGHTNESS_THRESHOLD 10
+#define CLOCK_FACE_OFF_BRIGHTNESS_THRESHOLD 1
 
-#define DARK_COLOR_BRIGHTNESS_THRESHOLD 20
-#define LIGHT_COLOR_BRIGHTNESS_THRESHOLD 50
+#define DARK_COLOR_BRIGHTNESS_THRESHOLD 30
+#define LIGHT_COLOR_BRIGHTNESS_THRESHOLD 80
 
 // Declare our NeoPixel objects:
 Adafruit_NeoPixel hoursClock(LED_HOURS_COUNT, LED_HOURS_PIN, NEO_GRB + NEO_KHZ800);
@@ -121,16 +124,23 @@ void loop() {
   updateAndPrintCurrentTime();
   int lightSensorValue = getLightSensorValue();
 //  lightSensorValue = 100;
-  int clockFaceBrightness = constrain(map(lightSensorValue, CLOCK_FACE_MIN_BRIGHTNESS_THRESHOLD, CLOCK_FACE_MAX_BRIGHTNESS_THRESHOLD, CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS), CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS);
+//  int clockFaceBrightness = constrain(map(lightSensorValue, CLOCK_FACE_MIN_BRIGHTNESS_THRESHOLD, CLOCK_FACE_MAX_BRIGHTNESS_THRESHOLD, CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS), CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS);
+//  Serial.print("Mapped brightness value = ");
+//  Serial.println(clockFaceBrightness);
+//  uint32_t hour_color;
+//  uint32_t minute_color;
+//  getDateAwareRandomColorPair(datetime.Month, datetime.Day, lightSensorValue, hour_color, minute_color);
+
+  minutesClock.clear();
+  hoursClock.clear();
+  if (lightSensorValue >= CLOCK_FACE_OFF_BRIGHTNESS_THRESHOLD) {
+    int clockFaceBrightness = constrain(map(lightSensorValue, CLOCK_FACE_MIN_BRIGHTNESS_THRESHOLD, CLOCK_FACE_MAX_BRIGHTNESS_THRESHOLD, CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS), CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS);
   Serial.print("Mapped brightness value = ");
   Serial.println(clockFaceBrightness);
   uint32_t hour_color;
   uint32_t minute_color;
   getDateAwareRandomColorPair(datetime.Month, datetime.Day, lightSensorValue, hour_color, minute_color);
 
-  minutesClock.clear();
-  hoursClock.clear();
-  if (lightSensorValue >= CLOCK_FACE_OFF_BRIGHTNESS_THRESHOLD) {
  displayCurrentTime(hour_color, minute_color);
   minutesClock.setBrightness(clockFaceBrightness);
   hoursClock.setBrightness(clockFaceBrightness);
@@ -181,12 +191,12 @@ void updateAndPrintCurrentTime(){
   
   // And use it
   Serial.println("");
-  Serial.print("Time is: ");   Serial.print(datetime.Hour);
-  Serial.print(":"); Serial.print(datetime.Minute);
-  Serial.print(":"); Serial.println(datetime.Second);
-  Serial.print("Date is: 20");   Serial.print(datetime.Year);
-  Serial.print(":");  Serial.print(datetime.Month);
-  Serial.print(":");    Serial.println(datetime.Day);
+//  Serial.print("Time is: ");   Serial.print(datetime.Hour);
+//  Serial.print(":"); Serial.print(datetime.Minute);
+//  Serial.print(":"); Serial.println(datetime.Second);
+//  Serial.print("Date is: 20");   Serial.print(datetime.Year);
+//  Serial.print(":");  Serial.print(datetime.Month);
+//  Serial.print(":");    Serial.println(datetime.Day);
 }
 
 void displayCurrentTime(uint32_t hour_color, uint32_t minute_color) {
