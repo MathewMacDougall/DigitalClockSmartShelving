@@ -1,15 +1,27 @@
-#define NUM_COLOR_PAIRS 7
+#define NUM_COLOR_PAIRS 8
 
 uint32_t white() {
   return stripDownlighter.Color(255, 255, 255);
 }
 
-uint32_t purple() {
-  return stripDownlighter.Color(110, 0, 255);
+uint32_t purple(int light_sensor_value) {
+  return stripDownlighter.Color(
+    constrain(map(light_sensor_value, DARK_COLOR_BRIGHTNESS_THRESHOLD, LIGHT_COLOR_BRIGHTNESS_THRESHOLD, 110, 140), 110, 140),
+    0,
+    255
+  );
 }
 
-uint32_t yellow() {
-  return stripDownlighter.Color(255, 242, 0);
+uint32_t pink(int light_sensor_value) {
+  return stripDownlighter.Color(255, 0, 110);
+}
+
+uint32_t yellow(int light_sensor_value) {
+  return stripDownlighter.Color(
+    255,
+    constrain(map(light_sensor_value, DARK_COLOR_BRIGHTNESS_THRESHOLD, LIGHT_COLOR_BRIGHTNESS_THRESHOLD, 242, 190), 190, 242),
+    0
+  );
 }
 
 uint32_t red() {
@@ -43,15 +55,17 @@ void getColorPair(int index, int light_sensor_value, uint32_t& hour_color, uint3
     // 1:  Blue and Orange
     blue(light_sensor_value),
     // 2:  Purple and Yellow
-    purple(),
+    purple(light_sensor_value),
     // 3:  Purple and White
-    purple(),
+    purple(light_sensor_value),
     // 4:  Red and White
     red(),
     // 5:  Orange and White
     orange(light_sensor_value),
     // 6: Green and White
     green(),
+    // 7: Pink and Yellow (Pink Lemonade!)
+    pink(light_sensor_value)
   };
   uint32_t minute_colors[] = {
     // 0:  Blue and White
@@ -59,7 +73,7 @@ void getColorPair(int index, int light_sensor_value, uint32_t& hour_color, uint3
     // 1:  Blue and Orange
     orange(light_sensor_value),
     // 2:  Purple and Yellow
-    yellow(),
+    yellow(light_sensor_value),
     // 3:  Purple and White
     white(),
     // 4:  Red and White
@@ -68,6 +82,8 @@ void getColorPair(int index, int light_sensor_value, uint32_t& hour_color, uint3
     white(),
     // 6: Green and White
     white(),
+    // 7: Pink and Yellow (Pink Lemonade!)
+    yellow(light_sensor_value)
   };
   
   index = index % NUM_COLOR_PAIRS;

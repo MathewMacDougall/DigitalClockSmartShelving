@@ -102,3 +102,79 @@ void tens_digitEight(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
 void tens_digitNine(Adafruit_NeoPixel& leds, int offset, uint32_t colour) {
   leds.fill(colour, (0 + offset), 5 * LEDS_PER_SEGMENT);
 }
+
+//=============================================================================//
+
+void ones_displayNumber(Adafruit_NeoPixel& leds, int digitToDisplay, int offsetBy, uint32_t colourToUse){
+    switch (digitToDisplay){
+    case 0:
+    ones_digitZero(leds, offsetBy, colourToUse);
+      break;
+    case 1:
+    ones_digitOne(leds, offsetBy, colourToUse);
+      break;
+    case 2:
+    ones_digitTwo(leds, offsetBy, colourToUse);
+      break;
+    case 3:
+    ones_digitThree(leds, offsetBy, colourToUse);
+      break;
+    case 4:
+    ones_digitFour(leds, offsetBy, colourToUse);
+      break;
+    case 5:
+    ones_digitFive(leds, offsetBy, colourToUse);
+      break;
+    case 6:
+    ones_digitSix(leds, offsetBy, colourToUse);
+      break;
+    case 7:
+    ones_digitSeven(leds, offsetBy, colourToUse);
+      break;
+    case 8:
+    ones_digitEight(leds, offsetBy, colourToUse);
+      break;
+    case 9:
+    ones_digitNine(leds, offsetBy, colourToUse);
+      break;
+    default:
+     break;
+  }
+}
+
+void tens_displayNumber(Adafruit_NeoPixel& leds, int digitToDisplay, int offsetBy, uint32_t colourToUse){
+    switch (digitToDisplay){
+    case 0:
+    tens_digitZero(leds, offsetBy, colourToUse);
+      break;
+    case 1:
+    tens_digitOne(leds, offsetBy, colourToUse);
+      break;
+    case 2:
+    tens_digitTwo(leds, offsetBy, colourToUse);
+      break;
+    case 3:
+    tens_digitThree(leds, offsetBy, colourToUse);
+      break;
+    case 4:
+    tens_digitFour(leds, offsetBy, colourToUse);
+      break;
+    case 5:
+    tens_digitFive(leds, offsetBy, colourToUse);
+      break;
+    case 6:
+    tens_digitSix(leds, offsetBy, colourToUse);
+      break;
+    case 7:
+    tens_digitSeven(leds, offsetBy, colourToUse);
+      break;
+    case 8:
+    tens_digitEight(leds, offsetBy, colourToUse);
+      break;
+    case 9:
+    tens_digitNine(leds, offsetBy, colourToUse);
+      break;
+    default:
+     break;
+  }
+}
