@@ -22,7 +22,7 @@ DateTime datetime;
 #define MINUTES_TENS_DIGIT_OFFSET 7 * LEDS_PER_SEGMENT
 #define MINUTES_ONES_DIGIT_OFFSET 0
 
-#define DELAY_MS 5000
+#define DELAY_MS 1000
 #define DELAY_S (DELAY_MS / 1000.0)
 
 // Mapped to 0 (dark) to 100 (bright)
@@ -54,6 +54,10 @@ uint32_t minute_color;
 
 void setup() {
   Serial.begin(9600);
+
+  // Sample random seed from analog noise
+  randomSeed(analogRead(2));
+  
   Clock.begin();
 
   hoursClock.begin();
@@ -85,8 +89,7 @@ void loop() {
     Serial.println(clockFaceBrightness);
 
     if(shouldChangeColor()) {
-      getRandomColorPair(lightSensorValue, hour_color, minute_color);
-//      getDateAwareRandomColorPair(datetime.Month, datetime.Day, lightSensorValue, hour_color, minute_color);  
+      getDateAwareRandomColorPair(datetime.Month, datetime.Day, lightSensorValue, hour_color, minute_color);  
     }
 
     displayCurrentTime(hour_color, minute_color);
@@ -168,7 +171,6 @@ void updateAndPrintCurrentTime(){
 }
 
 bool shouldChangeColor() {
-  return true;
   if(datetime.Day != previous_day) {
     previous_day = datetime.Day;
     return true;
