@@ -49,6 +49,9 @@ ExtendedZoneProcessor zoneProcessor;
 auto pacificTz = TimeZone::forZoneInfo(&zonedbx::kZoneAmerica_Los_Angeles, &zoneProcessor);
 auto utcTz = TimeZone::forUtc();
 
+// Create a variable to hold the time data 
+ZonedDateTime tz_aware_datetime;
+
 Adafruit_NeoPixel hoursClock(LED_HOURS_COUNT, LED_HOURS_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel minutesClock(LED_MINUTES_COUNT, LED_MINUTES_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel stripDownlighter(LED_DOWNLIGHT_COUNT, LED_DOWNLIGHT_PIN, NEO_GRB + NEO_KHZ800);
@@ -99,6 +102,7 @@ void loop() {
 
     if(shouldChangeColor()) {
       getDateAwareRandomColorPair(datetime.Month, datetime.Day, lightSensorValue, hour_color, minute_color);  
+//      getDateAwareRandomColorPair(tz_aware_datetime.month(), tz_aware_datetime.day(), lightSensorValue, hour_color, minute_color);  
     }
 
     displayCurrentTime(hour_color, minute_color);
@@ -144,12 +148,15 @@ int getLightSensorValue() {
 
 void displayCurrentTime(uint32_t hour_color, uint32_t minute_color) {
   int minute_ones_digit = datetime.Minute % 10;
+//  int minute_ones_digit = tz_aware_datetime.minute() % 10;
   ones_displayNumber(minutesClock, minute_ones_digit, MINUTES_ONES_DIGIT_OFFSET, minute_color);
   
   int minute_tens_digit = floor(datetime.Minute / 10);
+//  int minute_tens_digit = floor(tz_aware_datetime.minute() / 10);
   tens_displayNumber(minutesClock, minute_tens_digit, MINUTES_TENS_DIGIT_OFFSET, minute_color);
 
   int current_hour = datetime.Hour;
+//  int current_hour = tz_aware_datetime.hour();
   if (current_hour > 12) {
     current_hour -= 12;
   }
@@ -198,12 +205,14 @@ void updateAndPrintCurrentTime(){
 
   auto pacific_time = datetime_utc.convertToTimeZone(pacificTz);
   ZonedDateTime datetime2 = pacific_time;
+  tz_aware_datetime = pacific_time;
 
   datetime2.printTo(Serial); Serial.println("");
 }
 
 bool shouldChangeColor() {
   if(datetime.Day != previous_day) {
+//  if(tz_aware_datetime.day() != previous_day) {
     previous_day = datetime.Day;
     return true;
   }else {
