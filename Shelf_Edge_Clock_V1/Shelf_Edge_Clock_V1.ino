@@ -1,4 +1,9 @@
 #include <Adafruit_NeoPixel.h>
+#include <Arduino.h>
+#include <AceTime.h>
+
+using namespace ace_time;
+
 #ifdef __AVR__
 #endif
 
@@ -39,6 +44,10 @@ DateTime datetime;
 #define LIGHT_COLOR_BRIGHTNESS_THRESHOLD 80
 
 #define PHOTORESISTOR_BUFFER_SIZE 10
+
+ExtendedZoneProcessor zoneProcessor;
+auto pacificTz = TimeZone::forZoneInfo(&zonedbx::kZoneAmerica_Los_Angeles, &zoneProcessor);
+auto utcTz = TimeZone::forUtc();
 
 Adafruit_NeoPixel hoursClock(LED_HOURS_COUNT, LED_HOURS_PIN, NEO_GRB + NEO_KHZ800);
 Adafruit_NeoPixel minutesClock(LED_MINUTES_COUNT, LED_MINUTES_PIN, NEO_GRB + NEO_KHZ800);
@@ -168,6 +177,29 @@ void updateAndPrintCurrentTime(){
   Serial.print("Date is: 20");   Serial.print(datetime.Year);
   Serial.print(":");  Serial.print(datetime.Month);
   Serial.print(":");    Serial.println(datetime.Day);
+
+  DateTime raw_datetime = Clock.read();
+
+  // Use AceTime to convert UTC to whatever timezon we want to handle daylight savings
+  // SET RTC TO UTC TIME!
+  // https://github.com/bxparks/AceTime
+  auto datetime_utc = ZonedDateTime::forComponents(
+    // The RTC only returns the last 2 digits of the year (or doesn't support years pre-2000)
+    raw_datetime.Year + 2000,
+    raw_datetime.Month,
+    raw_datetime.Day,
+    raw_datetime.Hour,
+    raw_datetime.Minute,
+    raw_datetime.Second,
+    utcTz
+  );
+
+  datetime_utc.printTo(Serial); Serial.println("");
+
+  auto pacific_time = datetime_utc.convertToTimeZone(pacificTz);
+  ZonedDateTime datetime2 = pacific_time;
+
+  datetime2.printTo(Serial); Serial.println("");
 }
 
 bool shouldChangeColor() {
