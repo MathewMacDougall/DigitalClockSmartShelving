@@ -101,8 +101,8 @@ void loop() {
     Serial.println(clockFaceBrightness);
 
     if(shouldChangeColor()) {
-      getDateAwareRandomColorPair(datetime.Month, datetime.Day, lightSensorValue, hour_color, minute_color);  
-//      getDateAwareRandomColorPair(tz_aware_datetime.month(), tz_aware_datetime.day(), lightSensorValue, hour_color, minute_color);  
+//      getDateAwareRandomColorPair(datetime.Month, datetime.Day, lightSensorValue, hour_color, minute_color);  
+      getDateAwareRandomColorPair(tz_aware_datetime.month(), tz_aware_datetime.day(), lightSensorValue, hour_color, minute_color);  
     }
 
     displayCurrentTime(hour_color, minute_color);
@@ -147,16 +147,16 @@ int getLightSensorValue() {
 }
 
 void displayCurrentTime(uint32_t hour_color, uint32_t minute_color) {
-  int minute_ones_digit = datetime.Minute % 10;
-//  int minute_ones_digit = tz_aware_datetime.minute() % 10;
+//  int minute_ones_digit = datetime.Minute % 10;
+  int minute_ones_digit = tz_aware_datetime.minute() % 10;
   ones_displayNumber(minutesClock, minute_ones_digit, MINUTES_ONES_DIGIT_OFFSET, minute_color);
   
-  int minute_tens_digit = floor(datetime.Minute / 10);
-//  int minute_tens_digit = floor(tz_aware_datetime.minute() / 10);
+//  int minute_tens_digit = floor(datetime.Minute / 10);
+  int minute_tens_digit = floor(tz_aware_datetime.minute() / 10);
   tens_displayNumber(minutesClock, minute_tens_digit, MINUTES_TENS_DIGIT_OFFSET, minute_color);
 
-  int current_hour = datetime.Hour;
-//  int current_hour = tz_aware_datetime.hour();
+//  int current_hour = datetime.Hour;
+  int current_hour = tz_aware_datetime.hour();
   if (current_hour > 12) {
     current_hour -= 12;
   }
@@ -211,9 +211,10 @@ void updateAndPrintCurrentTime(){
 }
 
 bool shouldChangeColor() {
-  if(datetime.Day != previous_day) {
-//  if(tz_aware_datetime.day() != previous_day) {
-    previous_day = datetime.Day;
+//  if(datetime.Day != previous_day) {
+  if(tz_aware_datetime.day() != previous_day) {
+//    previous_day = datetime.Day;
+    previous_day = tz_aware_datetime.day();
     return true;
   }else {
     return false;
