@@ -1,4 +1,6 @@
 #include <Adafruit_NeoPixel.h>
+#include <Timezone.h>
+#include <TimeLib.h>
 #ifdef __AVR__
 #endif
 
@@ -7,6 +9,12 @@ DS3231_Simple Clock;
 
 // Create a variable to hold the time data 
 DateTime datetime;
+
+// Timezone support
+TimeChangeRule usPDT = {"PDT", Second, Sun, Mar, 2, -420};  //UTC - 7 hours
+TimeChangeRule usPST = {"PST", First, Sun, Nov, 2, -480};   //UTC - 8 hours
+Timezone usPacific(usPDT, usPST);
+//auto pacific = usPacific.toLocal(utc);
 
 // LED setup
 #define LEDS_PER_SEGMENT 10
@@ -51,6 +59,21 @@ int previous_day = 0;
 uint32_t hour_color;
 uint32_t minute_color;
 
+time_t rtcToTime() {
+  DateTime dt = Clock.read();
+  tmElements_t tm{
+    .Second=dt.Second,
+    .Minute=dt.Minute,
+    .Hour=dt.Hour,
+    .Wday=dt.Dow,
+    .Day=dt.Day,
+    .Month=dt.Month,
+    .Year=dt.Year
+    };
+  return makeTime(tm);
+}
+
+
 
 void setup() {
   Serial.begin(9600);
@@ -58,7 +81,7 @@ void setup() {
   // Sample random seed from analog noise
   randomSeed(analogRead(2));
   
-  Clock.begin();
+  Clock.begin();  
 
   hoursClock.begin();
   hoursClock.setBrightness(255);
@@ -158,16 +181,32 @@ void displayCurrentTime(uint32_t hour_color, uint32_t minute_color) {
   }
 }
 
+// format and print a time_t value, with a time zone appended.
+void printDateTime(time_t t, const char *tz)
+{
+    char buf[32];
+    char m[4];    // temporary storage for month string (DateStrings.cpp uses shared buffer)
+    strcpy(m, monthShortStr(month(t)));
+    sprintf(buf, "%.2d:%.2d:%.2d %s %.2d %s %d %s",
+        hour(t), minute(t), second(t), dayShortStr(weekday(t)), day(t), m, year(t), tz);
+    Serial.println(buf);
+}
+
 void updateAndPrintCurrentTime(){
   datetime = Clock.read();
+
+  time_t t = rtcToTime();
+  TimeChangeRule *tcr;
+  time_t local = usPacific.toLocal(t, &tcr);
+      printDateTime(local, tcr -> abbrev);
   
   Serial.println("");
-  Serial.print("Time is: ");   Serial.print(datetime.Hour);
-  Serial.print(":"); Serial.print(datetime.Minute);
-  Serial.print(":"); Serial.println(datetime.Second);
-  Serial.print("Date is: 20");   Serial.print(datetime.Year);
-  Serial.print(":");  Serial.print(datetime.Month);
-  Serial.print(":");    Serial.println(datetime.Day);
+//  Serial.print("Time is: ");   Serial.print(datetime.Hour);
+//  Serial.print(":"); Serial.print(datetime.Minute);
+//  Serial.print(":"); Serial.println(datetime.Second);
+//  Serial.print("Date is: 20");   Serial.print(datetime.Year);
+//  Serial.print(":");  Serial.print(datetime.Month);
+//  Serial.print(":");    Serial.println(datetime.Day);
 }
 
 bool shouldChangeColor() {
