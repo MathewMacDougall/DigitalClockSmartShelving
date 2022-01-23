@@ -1,10 +1,18 @@
 #include <Adafruit_NeoPixel.h>
 #include <Timezone.h>
 #include <TimeLib.h>
-#ifdef __AVR__
-#endif
-
 #include <DS3231_Simple.h>
+
+//--------------------------------------------------------//
+// Toggle printing
+#define Sprintln(a) (Serial.println(a))
+#define Sprint(a) (Serial.print(a))
+// Uncomment to disable printing
+//#define Sprintln(a)
+//#define Sprint(a) 
+//--------------------------------------------------------//
+
+
 DS3231_Simple Clock;
 
 // Timezone support
@@ -90,8 +98,8 @@ void loop() {
   int lightSensorValue = getLightSensorValue();
   if (lightSensorValue >= CLOCK_FACE_OFF_BRIGHTNESS_THRESHOLD) {
     int clockFaceBrightness = constrain(map(lightSensorValue, CLOCK_FACE_MIN_BRIGHTNESS_THRESHOLD, CLOCK_FACE_MAX_BRIGHTNESS_THRESHOLD, CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS), CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS);
-    Serial.print("Mapped brightness value = ");
-    Serial.println(clockFaceBrightness);
+    Sprint("Mapped brightness value = ");
+    Sprintln(clockFaceBrightness);
 
     if(shouldChangeColor(current_time)) {
       getDateAwareRandomColorPair(month(current_time), day(current_time), lightSensorValue, hour_color, minute_color);  
@@ -109,34 +117,25 @@ void loop() {
   hoursClock.show();
   stripDownlighter.show();
 
-  Serial.println("\n");
-  
+  Sprintln("\n");
   
   delay(DELAY_MS);
 }
 
 int getLightSensorValue() {
   readings[readIndex] = analogRead(A0);
-  Serial.print("Light sensor value added to array = ");
-  Serial.println(readings[readIndex]);
-  
   readIndex = (readIndex + 1) % PHOTORESISTOR_BUFFER_SIZE;
 
   int sumBrightness = 0;
-  for (int i=0; i < PHOTORESISTOR_BUFFER_SIZE; i++)
-    {
-        sumBrightness += readings[i];
-    }
-  Serial.print("Sum of the brightness array = ");
-  Serial.println(sumBrightness);
-
+  for (int i=0; i < PHOTORESISTOR_BUFFER_SIZE; i++) {
+    sumBrightness += readings[i];
+  }
+  
   int lightSensorValue = sumBrightness / PHOTORESISTOR_BUFFER_SIZE;
-  Serial.print("Average light sensor value = ");
-  Serial.println(lightSensorValue);
+  Sprint("Average light sensor value = "); Sprintln(lightSensorValue);
 
   int normalized_value = constrain(map(lightSensorValue, LIGHT_SENSOR_RAW_MIN_VALUE, LIGHT_SENSOR_RAW_MAX_VALUE, 100, 0), 0, 100);
-  Serial.print("Normalized light sensor value = ");
-  Serial.println(normalized_value);
+  Sprint("Normalized light sensor value = "); Sprintln(normalized_value);
 
   return normalized_value;
 }
@@ -150,7 +149,9 @@ time_t readTimeFromRtc() {
     .Wday=dt.Dow,
     .Day=dt.Day,
     .Month=dt.Month,
-    .Year=dt.Year
+    // Not totally sure why we need to compensate by 30 years. Probably some
+    // subtle difference between the DS3231 and the time library
+    .Year=dt.Year + 30
     };
   return makeTime(tm);
 }
@@ -162,15 +163,6 @@ void displayTime(time_t current_time, uint32_t hour_color, uint32_t minute_color
   int minute_tens_digit = floor(minute(current_time) / 10);
   tens_displayNumber(minutesClock, minute_tens_digit, MINUTES_TENS_DIGIT_OFFSET, minute_color);
 
-//  int current_hour = datetime.Hour;
-//  if (current_hour > 12) {
-//    current_hour -= 12;
-//  }
-//  // Show midnight as 12:00 instead of 0:00
-//  if (current_hour == 0) {
-//    current_hour = 12;
-//  }
-  
   int hour_ones_digit = hourFormat12(current_time) % 10; 
   ones_displayNumber(hoursClock, hour_ones_digit, HOURS_ONES_DIGIT_OFFSET, hour_color);
 
@@ -188,7 +180,7 @@ void printDateTime(time_t t, const char *tz)
     strcpy(m, monthShortStr(month(t)));
     sprintf(buf, "%.2d:%.2d:%.2d %s %.2d %s %d %s",
         hour(t), minute(t), second(t), dayShortStr(weekday(t)), day(t), m, year(t), tz);
-    Serial.println(buf);
+    Sprintln(buf);
 }
 
 time_t getCurrentTime(){
@@ -196,7 +188,7 @@ time_t getCurrentTime(){
 
   time_t t = readTimeFromRtc();
   TimeChangeRule *tcr;
-  time_t local = usPacific.toLocal(t, &tcr);
+  time_t local = currentTimezone.toLocal(t, &tcr);
   printDateTime(local, tcr -> abbrev);
   return local;
 }
