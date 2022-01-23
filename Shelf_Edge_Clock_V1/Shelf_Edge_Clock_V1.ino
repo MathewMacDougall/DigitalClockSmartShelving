@@ -7,14 +7,11 @@
 #include <DS3231_Simple.h>
 DS3231_Simple Clock;
 
-// Create a variable to hold the time data 
-DateTime datetime;
-
 // Timezone support
 TimeChangeRule usPDT = {"PDT", Second, Sun, Mar, 2, -420};  //UTC - 7 hours
 TimeChangeRule usPST = {"PST", First, Sun, Nov, 2, -480};   //UTC - 8 hours
 Timezone usPacific(usPDT, usPST);
-//auto pacific = usPacific.toLocal(utc);
+Timezone currentTimezone = usPacific;
 
 // LED setup
 #define LEDS_PER_SEGMENT 10
@@ -59,21 +56,6 @@ int previous_day = 0;
 uint32_t hour_color;
 uint32_t minute_color;
 
-time_t rtcToTime() {
-  DateTime dt = Clock.read();
-  tmElements_t tm{
-    .Second=dt.Second,
-    .Minute=dt.Minute,
-    .Hour=dt.Hour,
-    .Wday=dt.Dow,
-    .Day=dt.Day,
-    .Month=dt.Month,
-    .Year=dt.Year
-    };
-  return makeTime(tm);
-}
-
-
 
 void setup() {
   Serial.begin(9600);
@@ -104,18 +86,18 @@ void loop() {
   minutesClock.clear();
   hoursClock.clear();
   
-  updateAndPrintCurrentTime();
+  time_t current_time = getCurrentTime();
   int lightSensorValue = getLightSensorValue();
   if (lightSensorValue >= CLOCK_FACE_OFF_BRIGHTNESS_THRESHOLD) {
     int clockFaceBrightness = constrain(map(lightSensorValue, CLOCK_FACE_MIN_BRIGHTNESS_THRESHOLD, CLOCK_FACE_MAX_BRIGHTNESS_THRESHOLD, CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS), CLOCK_FACE_MIN_BRIGHTNESS, CLOCK_FACE_MAX_BRIGHTNESS);
     Serial.print("Mapped brightness value = ");
     Serial.println(clockFaceBrightness);
 
-    if(shouldChangeColor()) {
-      getDateAwareRandomColorPair(datetime.Month, datetime.Day, lightSensorValue, hour_color, minute_color);  
+    if(shouldChangeColor(current_time)) {
+      getDateAwareRandomColorPair(month(current_time), day(current_time), lightSensorValue, hour_color, minute_color);  
     }
 
-    displayCurrentTime(hour_color, minute_color);
+    displayTime(current_time, hour_color, minute_color);
     minutesClock.setBrightness(clockFaceBrightness);
     hoursClock.setBrightness(clockFaceBrightness);
     stripDownlighter.fill(stripDownlighter.Color(255, 255, 255), 0, LED_DOWNLIGHT_COUNT);
@@ -126,6 +108,9 @@ void loop() {
   minutesClock.show();
   hoursClock.show();
   stripDownlighter.show();
+
+  Serial.println("\n");
+  
   
   delay(DELAY_MS);
 }
@@ -156,26 +141,40 @@ int getLightSensorValue() {
   return normalized_value;
 }
 
-void displayCurrentTime(uint32_t hour_color, uint32_t minute_color) {
-  int minute_ones_digit = datetime.Minute % 10;
+time_t readTimeFromRtc() {
+  DateTime dt = Clock.read();
+  tmElements_t tm{
+    .Second=dt.Second,
+    .Minute=dt.Minute,
+    .Hour=dt.Hour,
+    .Wday=dt.Dow,
+    .Day=dt.Day,
+    .Month=dt.Month,
+    .Year=dt.Year
+    };
+  return makeTime(tm);
+}
+
+void displayTime(time_t current_time, uint32_t hour_color, uint32_t minute_color) {
+  int minute_ones_digit = minute(current_time) % 10;
   ones_displayNumber(minutesClock, minute_ones_digit, MINUTES_ONES_DIGIT_OFFSET, minute_color);
   
-  int minute_tens_digit = floor(datetime.Minute / 10);
+  int minute_tens_digit = floor(minute(current_time) / 10);
   tens_displayNumber(minutesClock, minute_tens_digit, MINUTES_TENS_DIGIT_OFFSET, minute_color);
 
-  int current_hour = datetime.Hour;
-  if (current_hour > 12) {
-    current_hour -= 12;
-  }
-  // Show midnight as 12:00 instead of 0:00
-  if (current_hour == 0) {
-    current_hour = 12;
-  }
+//  int current_hour = datetime.Hour;
+//  if (current_hour > 12) {
+//    current_hour -= 12;
+//  }
+//  // Show midnight as 12:00 instead of 0:00
+//  if (current_hour == 0) {
+//    current_hour = 12;
+//  }
   
-  int hour_ones_digit = current_hour % 10; 
+  int hour_ones_digit = hourFormat12(current_time) % 10; 
   ones_displayNumber(hoursClock, hour_ones_digit, HOURS_ONES_DIGIT_OFFSET, hour_color);
 
-  int hour_tens_digit = floor(current_hour / 10);
+  int hour_tens_digit = floor(hourFormat12(current_time) / 10);
   if (hour_tens_digit > 0) {
     hoursClock.fill(hour_color, HOURS_TENS_DIGIT_OFFSET, 2 * LEDS_PER_SEGMENT); 
   }
@@ -192,26 +191,19 @@ void printDateTime(time_t t, const char *tz)
     Serial.println(buf);
 }
 
-void updateAndPrintCurrentTime(){
-  datetime = Clock.read();
+time_t getCurrentTime(){
+  DateTime datetime = Clock.read();
 
-  time_t t = rtcToTime();
+  time_t t = readTimeFromRtc();
   TimeChangeRule *tcr;
   time_t local = usPacific.toLocal(t, &tcr);
-      printDateTime(local, tcr -> abbrev);
-  
-  Serial.println("");
-//  Serial.print("Time is: ");   Serial.print(datetime.Hour);
-//  Serial.print(":"); Serial.print(datetime.Minute);
-//  Serial.print(":"); Serial.println(datetime.Second);
-//  Serial.print("Date is: 20");   Serial.print(datetime.Year);
-//  Serial.print(":");  Serial.print(datetime.Month);
-//  Serial.print(":");    Serial.println(datetime.Day);
+  printDateTime(local, tcr -> abbrev);
+  return local;
 }
 
-bool shouldChangeColor() {
-  if(datetime.Day != previous_day) {
-    previous_day = datetime.Day;
+bool shouldChangeColor(time_t current_time) {
+  if(day(current_time) != previous_day) {
+    previous_day = day(current_time);
     return true;
   }else {
     return false;
